@@ -1,0 +1,104 @@
+import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http';
+
+
+
+interface User {
+  id: number;
+  nombre: string;
+  edad: number;
+}
+
+@Component({
+  selector: 'app-buscar',
+  templateUrl: './buscar.component.html',
+  styleUrls: ['./buscar.component.css']
+})
+export class BuscarComponent {
+  searchTerm = '';
+  selectedOption = '';
+  searchResults: User[] = [];
+  showForm = false;
+  showVersion = false;  
+  version: string = "";
+  nombre: string = "";
+  edad: number = 0;
+  responseData: any;
+  status: any;
+  mensaje: any;
+  name: any;
+  age: any;
+  id: any;
+
+	
+  constructor(private http: HttpClient) { }
+
+  // Buscar usuarios
+search() {
+    let searchUrl = 'http://191.115.129.216/index.php/users';
+    if (this.selectedOption && this.searchTerm) {
+      searchUrl = `http://191.115.129.216/index.php/user?${this.selectedOption}=${this.searchTerm}`;
+    }
+    this.http.get<User[]>(searchUrl).subscribe(
+      (results) => this.searchResults = results,
+      (error) => console.error(error)
+    );
+  }
+
+  
+addUser() {
+    let payload = {
+      "nombre": this.nombre,
+      "edad": this.edad
+    }
+    this.http.post<any>("http://191.115.129.216/index.php/addUser", payload).subscribe(response => {
+      this.name = response.nombre,
+	  this.age = response.edad,
+      this.mensaje = response.mensaje,
+	  this.nombre = "",
+	  this.edad = 0,
+      this.showForm = false
+    });
+}
+
+
+  // Mostrar usuario
+getForm() {
+  this.showForm = true;
+}
+
+editUser(id: number) {
+    let payload = {
+      "nombre": this.nombre,
+      "edad": this.edad
+    }
+    this.http.put<any>("http://191.115.129.216/index.php/updateUser" + id, payload).subscribe(response => {
+      console.log(response),
+	    this.showForm = false
+    });
+  }
+
+
+  // Eliminar usuario
+  deleteUser(id: number) {
+    //aqui va la funcion
+  }
+
+cancelAddUser() {
+  this.nombre = "";
+  this.edad = 0;
+  this.showForm = false
+}
+
+
+  getVersion(){
+      this.http.get<any>("http://191.115.129.216/index.php/version").subscribe(response => this.version = response.version)
+      this.showVersion = true;
+  }
+  
+  hideVersion(){
+      this.showVersion = false;
+  }
+  
+}

@@ -1,0 +1,57 @@
+<p>Bienvenidos a la App.</p>
+<p *ngIf="searchResults.length === 0">No se encontraron resultados</p>
+<div>{{mensaje}}</div><br><br> 
+<div>
+<div class="form-group">
+  <label for="filter">Filtrar por</label>
+  <select class="form-control" id="filter" [(ngModel)]="selectedOption">
+    <option value="id">Id</option>
+    <option value="nombre">Nombre</option>
+    <option value="edad">Edad</option>
+  </select>
+  <input class="form-control" id="searchTerm" [(ngModel)]="searchTerm" (keyup.enter)="search()">
+</div>
+<button class="btn btn-primary" (click)="getForm()">Agregar Usuario</button>
+<div *ngIf="showForm">
+<form>
+  <label>Nombre: <input [(ngModel)]="nombre" name="nombre" type="text"></label><br>
+  <label>Edad: <input [(ngModel)]="edad" name="edad" type="text"></label>
+  <button (click)="addUser()">Agregar</button>
+  <button (click)="cancelAddUser()">Cancelar</button>
+</form>
+</div>
+<button class="btn btn-primary" (click)="search()">Buscar</button>
+<button (click)="reset()">Reset</button>
+<button (click)="getVersion()">Version</button>
+<div *ngIf="showVersion">
+  <p>Versión: {{ version }}</p>
+  <button (click)="hideVersion()">Ok</button>
+</div>
+<form>
+<table class="table">
+  <thead>
+    <tr>
+	  <th>#</th>
+      <th>ID</th>
+      <th>NOMBRE</th>
+      <th>EDAD</th>
+      <th>ACCIONES</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let user of searchResults">
+    <td>{{ user.lineNumber }}</td>
+<td><label><input id="id" type="text" value="{{ user.id }}" readonly="readonly"></label></td>
+<td><label><input  name="nombre" type="text" value="{{ user.nombre }}"></label></td>
+<td><label><input  name="edad" type="text" value="{{ user.edad }}"></label></td>
+      <td>
+        <button class="btn btn-primary" (click)="saveChanges(user.id, user.nombre, user.edad)">O</button>
+		<button class="btn btn-danger" (click)="deleteUser(user.id)">X</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</form>
+</div>
+
+
