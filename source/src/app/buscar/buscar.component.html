@@ -22,6 +22,7 @@
 </div>
 <button class="btn btn-primary" (click)="search()">Buscar</button>
 <button (click)="reset()">Reset</button>
+<button (click)="reloadPage()">Recargar</button>
 <button (click)="getVersion()">Version</button>
 <div *ngIf="showVersion">
   <p>Versión: {{ version }}</p>
@@ -39,14 +40,18 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let user of searchResults">
-    <td>{{ user.lineNumber }}</td>
-<td><label><input id="id" type="text" value="{{ user.id }}" readonly="readonly"></label></td>
-<td><label><input  name="nombre" type="text" value="{{ user.nombre }}"></label></td>
-<td><label><input  name="edad" type="text" value="{{ user.edad }}"></label></td>
-      <td>
-        <button class="btn btn-primary" (click)="saveChanges(user.id, user.nombre, user.edad)">O</button>
-		<button class="btn btn-danger" (click)="deleteUser(user.id)">X</button>
+<tr *ngFor="let user of searchResults">
+  <td>{{ user.lineNumber }}</td>
+  <td *ngIf="!user.estadoFila">{{ user.id }}</td>
+  <td *ngIf="user.estadoFila"><label><input [(ngModel)]="user.id" id="id" type="text" value="{{ user.id }}" readonly="readonly"></label></td>
+  <td *ngIf="!user.estadoFila">{{ user.nombre }}</td>
+  <td *ngIf="user.estadoFila"><label><input [(ngModel)]="user.nombre"  name="nombre" type="text" value="{{ user.nombre }}"></label></td>
+  <td *ngIf="!user.estadoFila">{{ user.edad }}</td>
+  <td *ngIf="user.estadoFila"><label><input [(ngModel)]="user.edad"  name="edad" type="text" value="{{ user.edad }}"></label></td>
+  <td>
+	<button class="btn btn-primary" (click)="cambiarEstadoFila(user)" [innerText]="user.boton"></button>
+	<button class="btn btn-danger" (click)="deleteUser(user)">Eliminar</button>
+
       </td>
     </tr>
   </tbody>

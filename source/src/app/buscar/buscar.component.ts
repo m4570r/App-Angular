@@ -8,6 +8,8 @@ interface User {
   nombre: string;
   edad: number;
   lineNumber: number;
+  estadoFila: boolean;
+  boton: string;
 }
 
 
@@ -33,15 +35,27 @@ export class BuscarComponent {
   edad: number = 0;
   numero = 1;
   lineNumber = 0;
-  editMode = true;
-selectedUser: User = {
-id:0,
-nombre:'',
-edad:0,
-lineNumber: 0
-};
-  
-  constructor(private http: HttpClient) { }
+  boton: string = 'Editar';
+ 
+ //boton editar/guardar
+ cambiarEstadoFila(user: User) {
+ user.estadoFila = !user.estadoFila; 
+ user.boton = user.estadoFila === false ? 'Editar' : 'Guardar';
+ if(user.estadoFila === true){
+      console.log("Estado actual: true");
+    }else{
+      console.log("Estado actual: false");
+	  this.saveChanges(user);
+    }
+}
+
+ 
+  constructor(private http: HttpClient) { 
+      for (let i = 0; i < this.searchResults.length; i++) {
+      this.searchResults[i].estadoFila = false;
+	 this.searchResults[i].boton = 'Editar';
+    }
+  }
 
   // Buscar usuarios
 search() {
@@ -55,6 +69,7 @@ search() {
         for (let i = 0; i < results.length; i++) {
           let numero = i + 1;
           results[i].lineNumber = numero;
+		  results[i].boton = 'Editar';
           this.searchResults.push(results[i]);
         }
       },
@@ -75,57 +90,60 @@ addUser() {
 	  this.edad = 0,
       this.showForm = false
     });
+	    console.log(this.mensaje);
+			 this.search();
 }
 
 
-  // Mostrar usuario
+  // Mostrar formulario agregar usuario
 getForm() {
   this.showForm = true;
 }
 
-
-
-toggleEditMode() {
-this.editMode = !this.editMode;
+//recargar la pagina
+reloadPage() {
+  location.assign(location.href + 'index.html');
 }
 
-selectUser(user: User) {
-this.selectedUser = user;
-}
 
-saveChanges(id:number, nombre:string, edad:number) {
-console.log(id);
-console.log(nombre);
-console.log(edad);
-  /*if (this.editMode && this.selectedUser) {
-    let putUrl = 'http://200.28.183.138/index.php/updateUser';
-    let payload = {
-      "id": this.selectedUser.id,
-      "nombre": this.selectedUser.nombre,
-      "edad": this.selectedUser.edad
-    }
-    this.http.put<any>(putUrl, payload).subscribe(response => {
-      this.mensaje = response.mensaje;
-      this.editMode = false;
-    });
-  } else {
-    this.editMode = false;
-  }*/
-}
 
-  editUser(id:number, nombre:string, edad:number) {
-    //aqui va la funcion
+//editar usuario
+saveChanges(user: User) {
+  console.log(user.id);
+  console.log(user.nombre);
+  console.log(user.edad);
+
+  let putUrl = 'http://200.28.183.138/index.php/updateUser';
+  let payload = {
+    "id": user.id,
+    "nombre": user.nombre,
+    "edad": user.edad
   }
+  this.http.put<any>(putUrl, payload).subscribe(response => {
+    this.mensaje = response.mensaje;
+    console.log(this.mensaje);
+	this.search();
+  });
+}
 
-
-  cancelChanges() {
-    this.editMode = false;
-  }
 
   // Eliminar usuario
-  deleteUser(id: number) {
-    //aqui va la funcion
+deleteUser(user: User) {
+  let deleteUrl = 'http://200.28.183.138/index.php/deleteUser';
+  let payload = {
+    "id": user.id
   }
+  this.http.delete<any>(deleteUrl, {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    body: payload
+  }).subscribe(response => {
+    this.mensaje = response.mensaje;
+	console.log(this.mensaje);
+	 this.search();
+  });
+}
+
+
 
 cancelAddUser() {
   this.nombre = "";
@@ -149,6 +167,7 @@ cancelAddUser() {
     this.selectedOption = ''; // vaciamos el campo de opciones
 	this.showForm = false
 	this.showVersion = false
+	this.mensaje = '';
   }
 
  
